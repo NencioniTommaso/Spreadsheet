@@ -54,36 +54,48 @@ void Cell::update()
     calcValue();
 }
 
-void Cell::attach(Subject* s)
-{
-    auto o = dynamic_cast<Observer*>(s);
-    if (o) {
-        // Controlla che il puntatore 'o' non sia già presente in 'observers' e che non sia 'this'
-        if (o != this && std::find(observers.begin(), observers.end(), o) == observers.end()){ //&& std::find(cells.begin(), cells.end(), s) == cells.end()) {
-            Cell* c = dynamic_cast<Cell*>(s);
-            if(c){
-                c->subscribe(this);
-                cells.push_back(c);
+void Cell::attach(Subject* s) {
+    try {
+        auto o = dynamic_cast<Observer*>(s);
+        if (o) {
+            if (o != this && std::find(observers.begin(), observers.end(), o) == observers.end() && std::find(cells.begin(), cells.end(), s) == cells.end()) {
+                Cell* c = dynamic_cast<Cell*>(s);
+                if (c) {
+                    c->subscribe(this);
+                    cells.push_back(c);
+                } else {
+                    throw std::invalid_argument("Il puntatore passato non è una Cell valida.");
+                }
+            } else {
+                throw std::logic_error("Auto-collegamento o puntatore duplicato non consentiti.");
             }
-            //else{/*gestisci*/}
-        }else {
-            // Gestisci il caso in cui 'o' sia già presente o se stai cercando di auto-collegarti
-            // Ad esempio, puoi lanciare un'eccezione o loggare un messaggio di errore
+        } else {
+            throw std::invalid_argument("Il puntatore passato non è un Observer valido.");
         }
-    } else {
-        // Gestisci l'errore se il cast fallisce
-        // Ad esempio, puoi lanciare un'eccezione o loggare un messaggio di errore
+    } catch (const std::invalid_argument& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore di Validazione",
+                     wxOK | wxICON_ERROR);
+    } catch (const std::logic_error& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore Logico",
+                     wxOK | wxICON_ERROR);
+    } catch (const std::exception& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore Generico",
+                     wxOK | wxICON_ERROR);
+    } catch (...) {
+        wxMessageBox("Errore sconosciuto durante l'esecuzione di attach.",
+                     "Errore Sconosciuto",
+                     wxOK | wxICON_ERROR);
     }
 }
+
+
 
 void Cell::detach(Subject* s)
 {
     s->unsubscribe(this);
-    /*Cell* c = dynamic_cast<Cell*>(s);
-    if(c){
-        c->unsubscribe(this);
-        //cells.remove(c);
-    }*/
 }
 
 void Cell::clearWatchedCells()
@@ -91,7 +103,7 @@ void Cell::clearWatchedCells()
     for(auto c:cells){
         detach(c);
     }
-    cells.clear();              //meglio così che fare il remove in detach perchè il ciclo poi non funziona, accede a cose rimosse
+    cells.clear();
 }
 
 void Cell::calcValue()
@@ -111,7 +123,7 @@ void Cell::calcValue()
     case OperationId::Sum:
         v = calcSum();
         break;
-    default:                            //caso NoOp vedi cosa fare
+    default:
         return;
     }
 
