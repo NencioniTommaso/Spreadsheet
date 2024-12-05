@@ -19,24 +19,37 @@ void Cell::setOperationId(OperationId id)
     notify();
 }
 
-void Cell::subscribe(Observer *o)
-{
-    auto s = dynamic_cast<Subject*>(o);
-    if (s) {
-        // Controlla che il puntatore 'o' non sia già presente in 'observers' e che non sia 'this'
-        if (s != this && std::find(observers.begin(), observers.end(), o) == observers.end() && std::find(cells.begin(), cells.end(), s) == cells.end()) {
-            observers.push_back(o);
-            //else{/*gestisci*/}
-        }else {
-            // Gestisci il caso in cui 'o' sia già presente o se stai cercando di auto-collegarti
-            // Ad esempio, puoi lanciare un'eccezione o loggare un messaggio di errore
-            value = "bob";
+void Cell::subscribe(Observer* o) {
+    try {
+        auto s = dynamic_cast<Subject*>(o);
+        if (s) {
+            if (s != this && std::find(observers.begin(), observers.end(), o) == observers.end() && std::find(cells.begin(), cells.end(), s) == cells.end()) {
+                observers.push_back(o);
+            } else {
+                throw std::logic_error("Auto-collegamento o duplicato non consentito.");
+            }
+        } else {
+            throw std::invalid_argument("Il puntatore passato non è un Subject valido.");
         }
-    } else {
-        // Gestisci l'errore se il cast fallisce
-        // Ad esempio, puoi lanciare un'eccezione o loggare un messaggio di errore
+    } catch (const std::invalid_argument& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore di Validazione",
+                     wxOK | wxICON_ERROR);
+    } catch (const std::logic_error& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore Logico",
+                     wxOK | wxICON_ERROR);
+    } catch (const std::exception& e) {
+        wxMessageBox(wxString::FromUTF8(e.what()),
+                     "Errore Generico",
+                     wxOK | wxICON_ERROR);
+    } catch (...) {
+        wxMessageBox("Errore sconosciuto durante l'esecuzione di subscribe.",
+                     "Errore Sconosciuto",
+                     wxOK | wxICON_ERROR);
     }
 }
+
 
 void Cell::unsubscribe(Observer *o)
 {
