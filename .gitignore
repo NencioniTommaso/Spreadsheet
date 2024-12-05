@@ -1,0 +1,31 @@
+# Directory di build
+build-directory/
+cmake-build-debug/
+
+# File di output binari o oggetti
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.exe
+
+# File di configurazione IDE
+.idea/
+*.iml
+
+# File temporanei o di sistema
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# File di cache di CMake
+build-directory/CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Output generato
+output/
