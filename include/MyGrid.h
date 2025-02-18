@@ -22,6 +22,7 @@ public:
     void OnCellChange(const wxGridEvent& event);
     void OnCellRightClick(wxGridEvent& event);
     void OnPopUpClick(wxCommandEvent& event);
+
 private:
     unsigned short int maxCol {26};
     std::unique_ptr<DataTable> dataTable;
