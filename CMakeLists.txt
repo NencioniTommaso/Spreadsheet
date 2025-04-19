@@ -22,6 +22,11 @@ set(SOURCES
         include/OperationId.h
         include/Subject.h
         include/CellInputDialog.h
+        include/OperationFactory.h
+        include/Operation.h
+        include/MaxOperation.h
+        include/MinOperation.h
+        include/SumOperation.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -38,6 +43,7 @@ add_executable(Spreadsheet_Test
         test/CellTest.cpp
         test/DataTableTest.cpp
         test/runAllTest.cpp
+        include/OperationFactory.h
 )
 
 # Link GoogleTest and wxWidgets libraries to the test executable

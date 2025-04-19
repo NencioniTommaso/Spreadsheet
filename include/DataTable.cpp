@@ -16,7 +16,7 @@ void DataTable::setCellBehav(const wxGridCellCoords& holder, const wxGridCellCoo
 {
     int hrow = holder.GetRow(), hcol = holder.GetCol();
 
-    table[hrow*columns + hcol]->setOperationId(op);
+    table[hrow*columns + hcol]->setOperation(op);
     table[hrow*columns + hcol]->clearWatchedCells();
 
     for (size_t i = 0; i < selectedCells.size(); i++){
@@ -33,5 +33,5 @@ std::string DataTable::getCellValue(const wxGridCellCoords &c) const
 
 void DataTable::resetCellOperation(int r, int c) const
 {
-    table[r*columns + c]->setOperationId(OperationId::NoOp);
+    table[r*columns + c]->setOperation(OperationId::NoOp);
 }

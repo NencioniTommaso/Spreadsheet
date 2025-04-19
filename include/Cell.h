@@ -4,21 +4,23 @@
 #include <wx/wx.h>
 #include <list>
 #include <string>
+#include <memory>
 #include <limits>
 #include "Subject.h"
 #include "Observer.h"
 #include "OperationId.h"
+#include "Operation.h"
 
 class Cell : public Subject, public Observer {
 public:
-    Cell() : operation(OperationId::NoOp) { value = ""; }
+    Cell() : operation(nullptr), operationId(OperationId::NoOp) { value = ""; }
     ~Cell();
 
     void setValue(const std::string& v);
 
     const std::string &getValue() const {return value;}
-    void setOperationId(OperationId id);
-    OperationId getOperationId() const {return operation;}
+    void setOperation(OperationId id);
+    OperationId getOperationId() const {return operationId;}
 
     void subscribe(Observer* o) override;
     void unsubscribe(Observer* o) override;
@@ -34,13 +36,10 @@ public:
 private:
     std::list<Observer*> observers;
     std::list<Cell*> cells;
-    OperationId operation;
+    std::unique_ptr<Operation> operation;
+    OperationId operationId;
     std::string value;
 
-    double calcMax() const;
-    double calcMin() const;
-    double calcMean() const;
-    double calcSum() const;
     int cellsSize() const;
     bool checkValidity(const std::string& str) const;
 };

@@ -1,6 +1,8 @@
 #include <algorithm>
 #include "Cell.h"
 
+#include "OperationFactory.h"
+
 Cell::~Cell()
 {
     observers.clear();
@@ -13,9 +15,10 @@ void Cell::setValue(const std::string& v)
     notify();
 }
 
-void Cell::setOperationId(OperationId id)
+void Cell::setOperation(OperationId id)
 {
-    operation = id;   
+    operationId = id;
+    operation = OperationFactory::createOperation(id);
     notify();
 }
 
@@ -121,24 +124,11 @@ void Cell::clearWatchedCells()
 
 void Cell::calcValue()
 {
-    double v;
-    switch (operation)
-    {
-    case OperationId::Max:
-        v = calcMax();
-        break;
-    case OperationId::Min:
-        v = calcMin();
-        break;
-    case OperationId::Mean:
-        v = calcMean();
-        break;
-    case OperationId::Sum:
-        v = calcSum();
-        break;
-    default:
+    if(!operation)
         return;
-    }
+
+    double v;
+    v = operation->compute(cells);
 
     try {
         // Gestione di NaN o infinito
@@ -170,67 +160,6 @@ void Cell::calcValue()
     notify();
 }
 
-double Cell::calcMax() const
-{
-    double v, max = -std::numeric_limits<double>::infinity();
-    for (auto c:cells) {
-        try {
-            if (!c->value.empty()) {
-                if (std::stod(c->value) > max)
-                    max = std::stod(c->value);
-            }
-        } catch (const std::invalid_argument&) {
-            continue;
-        } catch (const std::out_of_range&) {
-            continue;
-        }
-    }
-    return max;
-}
-
-double Cell::calcMin() const
-{
-    double v, min = std::numeric_limits<double>::infinity();
-    for (auto c:cells) {
-        try {
-            if (!c->value.empty()) {
-                if (std::stod(c->value) < min)
-                    min = std::stod(c->value);
-            }
-        } catch (const std::invalid_argument&) {
-            continue;
-        } catch (const std::out_of_range&) {
-            continue;
-        }
-    }
-    return min;
-}
-
-double Cell::calcMean() const
-{
-    if (cells.empty()) {
-        return 0.0;
-    }
-    return calcSum() / cellsSize();
-}
-
-double Cell::calcSum() const
-{
-    double s = 0;
-    for (auto c : cells) {
-        try {
-            if (!c->value.empty()) { // Salta le celle vuote
-                s += std::stod(c->value);
-            }
-        } catch (const std::invalid_argument&) {
-            // Ignora i valori non validi
-        } catch (const std::out_of_range&) {
-            // Ignora valori fuori dall'intervallo
-        }
-    }
-    return s;
-}
-
 int Cell::cellsSize() const {
     int size = 0;
     for (auto c : cells) {
@@ -240,7 +169,9 @@ int Cell::cellsSize() const {
                 size++;                             //sfrutto stack unwinding per contare le celle con valori validi
             }
         } catch (const std::invalid_argument&) {
+
         } catch (const std::out_of_range&) {
+
         }
     }
     return size;

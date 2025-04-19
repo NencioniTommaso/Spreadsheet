@@ -17,8 +17,8 @@ TEST(CellTest, SetValue){
     EXPECT_EQ(cell.getValue(), "42");
 }
 
-TEST(CellTest, SetOperationId){
+TEST(CellTest, SetOperation){
     Cell cell;
-    cell.setOperationId(OperationId::Sum);
+    cell.setOperation(OperationId::Sum);
     EXPECT_EQ(cell.getOperationId(), OperationId::Sum);
 }
